@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+/* Custom font imports */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+/* Base styles */
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Print styles for PDF export */
+@media print {
+  @page {
+    margin: 0.5in;
+    size: A4;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  nav {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .max-w-4xl {
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  .shadow-2xl,
+  .shadow-lg,
+  .shadow-sm {
+    box-shadow: none !important;
+  }
+
+  .bg-gradient-to-r,
+  .bg-gradient-to-br {
+    background: #1e293b !important;
+    color: white !important;
+  }
+
+  .hover\:shadow-lg:hover {
+    box-shadow: none !important;
+  }
+
+  .transition-all,
+  .transition-colors,
+  .transition-shadow {
+    transition: none !important;
+  }
+
+  /* Ensure good contrast for print */
+  .text-gray-600 {
+    color: #374151 !important;
+  }
+
+  .text-gray-500 {
+    color: #6b7280 !important;
+  }
+
+  .border-gray-200 {
+    border-color: #d1d5db !important;
+  }
+
+  /* Force page breaks */
+  .break-before {
+    page-break-before: always;
+  }
+
+  .break-after {
+    page-break-after: always;
+  }
+
+  .break-inside {
+    page-break-inside: avoid;
+  }
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Enhanced focus styles */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
