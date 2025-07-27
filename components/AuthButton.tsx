@@ -1,29 +1,30 @@
 'use client'
 
 import { signIn, signOut, useSession } from 'next-auth/react'
+import { Github } from 'lucide-react'
 
 export default function AuthButton() {
   const { data: session, status } = useSession()
 
   if (status === 'loading') {
     return (
-      <div className="border-2 border-black px-6 py-3 bg-white text-black font-mono">
-        <span className="font-bold">LOADING...</span>
+      <div className="px-8 py-4 bg-white/40 backdrop-blur-sm rounded-2xl shadow-[inset_0_0_60px_rgba(255,255,255,0.3),0_20px_60px_rgba(0,0,0,0.1)] text-slate-700 font-medium">
+        Loading...
       </div>
     )
   }
 
   if (session) {
     return (
-      <div className="flex items-center gap-4 font-mono">
-        <span className="text-sm font-bold">
-          WELCOME, {session.user?.name?.toUpperCase()}
+      <div className="flex items-center gap-4">
+        <span className="text-slate-700 font-medium">
+          Welcome, {session.user?.name}
         </span>
         <button
           onClick={() => signOut()}
-          className="bg-white text-black border-2 border-black px-4 py-2 font-bold hover:bg-black hover:text-white transition-colors"
+          className="px-6 py-3 bg-white/40 backdrop-blur-sm rounded-2xl shadow-[inset_0_0_60px_rgba(255,255,255,0.3),0_20px_60px_rgba(0,0,0,0.1)] hover:shadow-[inset_0_0_60px_rgba(255,255,255,0.5),0_25px_65px_rgba(0,0,0,0.15)] transition-all duration-300 text-slate-700 font-medium"
         >
-          SIGN OUT
+          Sign Out
         </button>
       </div>
     )
@@ -32,9 +33,10 @@ export default function AuthButton() {
   return (
     <button
       onClick={() => signIn('github')}
-      className="bg-black text-white border-2 border-black px-6 py-3 font-bold hover:bg-white hover:text-black transition-colors font-mono"
+      className="inline-flex items-center gap-3 px-8 py-4 bg-white/40 backdrop-blur-sm rounded-2xl shadow-[inset_0_0_60px_rgba(255,255,255,0.3),0_20px_60px_rgba(0,0,0,0.1)] hover:shadow-[inset_0_0_60px_rgba(255,255,255,0.5),0_25px_65px_rgba(0,0,0,0.15)] transition-all duration-300 text-slate-700 font-semibold text-lg"
     >
-      SIGN IN WITH GITHUB
+      <Github className="w-6 h-6" />
+      Continue with GitHub
     </button>
   )
 }
