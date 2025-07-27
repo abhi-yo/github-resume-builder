@@ -1,4 +1,4 @@
-import { GitHubUser, GitHubRepo, LanguageStats } from '@/types/github';
+import { GitHubUser, GitHubRepo, LanguageStats } from "@/types/github";
 
 export function generateLatexResume(
   profile: GitHubUser,
@@ -7,24 +7,63 @@ export function generateLatexResume(
 ): string {
   const topLanguages = Object.entries(languages)
     .sort(([, a], [, b]) => b - a)
-    .slice(0, 8);
+    .slice(0, 10);
 
-  const totalBytes = Object.values(languages).reduce((sum, bytes) => sum + bytes, 0);
+  const totalBytes = Object.values(languages).reduce(
+    (sum, bytes) => sum + bytes,
+    0
+  );
   const memberSince = new Date(profile.created_at).getFullYear();
-  const totalStars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+  const totalStars = repos.reduce(
+    (sum, repo) => sum + repo.stargazers_count,
+    0
+  );
   const totalForks = repos.reduce((sum, repo) => sum + repo.forks_count, 0);
+  const accountAge = new Date().getFullYear() - memberSince + 1;
 
-  const firstName = profile.name?.split(' ')[0] || profile.login;
-  const lastName = profile.name?.split(' ').slice(1).join(' ') || '';
-  
+  const firstName = profile.name?.split(" ")[0] || profile.login;
+  const lastName = profile.name?.split(" ").slice(1).join(" ") || "";
+
   // Get top programming languages for skills section
-  const primaryLanguages = topLanguages.slice(0, 6).map(([lang]) => escapeLatex(lang)).join(', ');
-  const frameworks = topLanguages.length > 6 ? topLanguages.slice(6).map(([lang]) => escapeLatex(lang)).join(', ') : 'React, Node.js, Docker, AWS';
+  const primaryLanguages = topLanguages
+    .slice(0, 8)
+    .map(([lang, bytes]) => {
+      const percentage = ((bytes / totalBytes) * 100).toFixed(0);
+      return `${escapeLatex(lang)} (${percentage}%)`;
+    })
+    .join(", ");
 
-  // Get top repositories for projects section
+  // Additional technologies based on common GitHub usage
+  const additionalTech =
+    "React, Node.js, Docker, AWS, PostgreSQL, MongoDB, Redis, Kubernetes";
+
+  // Get top repositories for pinned projects - show most relevant repos
   const topRepos = repos
-    .sort((a, b) => (b.stargazers_count + b.forks_count) - (a.stargazers_count + a.forks_count))
+    .sort((a, b) => {
+      // Improved scoring: prioritize engagement, recency, and completeness
+      const getRepoScore = (repo: GitHubRepo) => {
+        const starsWeight = repo.stargazers_count * 3;
+        const forksWeight = repo.forks_count * 2;
+        const recentActivity =
+          new Date(repo.updated_at).getTime() / 1000000000000; // Normalize to smaller number
+        const hasDescription = repo.description ? 5 : 0; // Bonus for having description
+        const hasLanguage = repo.language ? 2 : 0; // Bonus for having primary language
+        return (
+          starsWeight +
+          forksWeight +
+          recentActivity +
+          hasDescription +
+          hasLanguage
+        );
+      };
+      return getRepoScore(b) - getRepoScore(a);
+    })
     .slice(0, 4);
+
+  // Get all unique languages from repos
+  const repoLanguages = [
+    ...new Set(repos.map((repo) => repo.language).filter(Boolean)),
+  ];
 
   const latex = `%-------------------------
 % Resume in Latex
@@ -32,7 +71,7 @@ export function generateLatexResume(
 % License : MIT
 %------------------------
 
-\\documentclass[letterpaper,11pt]{article}
+\\documentclass[letterpaper,12pt]{article}
 
 \\usepackage{latexsym}
 \\usepackage[empty]{fullpage}
@@ -50,12 +89,12 @@ export function generateLatexResume(
 \\renewcommand{\\headrulewidth}{0pt}
 \\renewcommand{\\footrulewidth}{0pt}
 
-% Adjust margins
-\\addtolength{\\oddsidemargin}{-0.375in}
-\\addtolength{\\evensidemargin}{-0.375in}
-\\addtolength{\\textwidth}{1in}
-\\addtolength{\\topmargin}{-.5in}
-\\addtolength{\\textheight}{1.0in}
+% Adjust margins for bigger layout
+\\addtolength{\\oddsidemargin}{-0.5in}
+\\addtolength{\\evensidemargin}{-0.5in}
+\\addtolength{\\textwidth}{1.2in}
+\\addtolength{\\topmargin}{-.6in}
+\\addtolength{\\textheight}{1.2in}
 
 \\urlstyle{same}
 
@@ -65,7 +104,7 @@ export function generateLatexResume(
 
 % Sections formatting
 \\titleformat{\\section}{
-  \\vspace{-4pt}\\scshape\\raggedright\\large
+  \\vspace{-4pt}\\scshape\\raggedright\\large\\bfseries
 }{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
 
 %-------------------------
@@ -100,32 +139,49 @@ export function generateLatexResume(
 
 %----------HEADING-----------------
 \\begin{tabular*}{\\textwidth}{l@{\\extracolsep{\\fill}}r}
-  \\textbf{\\href{https://github.com/${profile.login}}{\\Large ${escapeLatex(firstName)} ${escapeLatex(lastName)}}} & Email : \\href{mailto:${profile.login}@users.noreply.github.com}{${profile.login}@users.noreply.github.com}\\\\
-  \\href{https://github.com/${profile.login}}{https://github.com/${profile.login}} & GitHub: ${profile.login} \\\\
-  ${profile.blog ? `\\href{${escapeLatex(profile.blog)}}{${escapeLatex(profile.blog.replace(/^https?:\/\//, ''))}} & Portfolio` : `Location: ${escapeLatex(profile.location || 'Remote')} &`} \\\\
+  \\textbf{\\href{https://github.com/${profile.login}}{\\Large ${escapeLatex(
+    firstName
+  )} ${escapeLatex(lastName)}}} & ${
+    profile.location
+      ? `Location: ${escapeLatex(profile.location)}`
+      : `Remote Developer`
+  }\\\\
+  \\href{https://github.com/${profile.login}}{GitHub: ${profile.login}} & ${
+    profile.blog
+      ? `\\href{${escapeLatex(profile.blog)}}{Portfolio: ${escapeLatex(
+          profile.blog.replace(/^https?:\/\//, "")
+        )}}`
+      : `${profile.public_repos} Public Repositories`
+  } \\\\
+  ${
+    profile.login.includes("@")
+      ? `\\href{mailto:${profile.login}}{${profile.login}}`
+      : `Member since ${memberSince}`
+  } & ${accountAge} years of open source development \\\\
 \\end{tabular*}
 
 %-----------SUMMARY-----------------
 \\section{Summary}
-\\small{${escapeLatex(profile.bio || 'Passionate developer with ' + profile.public_repos + ' open source repositories and ' + totalStars + ' GitHub stars. Experienced in ' + primaryLanguages + ' with a strong track record of building scalable applications and contributing to the developer community.')}}
+\\small{${escapeLatex(
+    profile.bio || `Passionate about solving problems through technology`
+  )}}
 
 %-----------EXPERIENCE-----------------
 \\section{Open Source Experience}
   \\resumeSubHeadingListStart
     \\resumeSubheading
-      {Open Source Developer}{GitHub Platform}
-      {Full Stack Developer \\& Maintainer}{${memberSince} - Present}
-      \\resumeItemListStart${topRepos.slice(0, 3).map(repo => `
-        \\resumeItem{${escapeLatex(repo.name)}}
-          {${escapeLatex(repo.description || 'Open source project demonstrating modern development practices')}. Built with ${repo.language || 'multiple technologies'}. Achieved ${repo.stargazers_count} stars and ${repo.forks_count} forks from the community.}`).join('')}
-      \\resumeItemListEnd
-
-    \\resumeSubheading
       {GitHub Community Contributor}{Remote}
       {Software Engineer \\& Code Reviewer}{${memberSince} - Present}
       \\resumeItemListStart
         \\resumeItem{Repository Management}
-          {Maintained ${profile.public_repos} public repositories with focus on ${primaryLanguages}. Collaborated with ${profile.followers} followers and contributed to open source ecosystem.}
+          {Maintained ${
+            profile.public_repos
+          } public repositories with focus on ${topLanguages
+    .slice(0, 3)
+    .map(([lang]) => lang)
+    .join(", ")}. Collaborated with ${
+    profile.followers
+  } followers and contributed to open source ecosystem.}
         \\resumeItem{Community Impact}
           {Earned ${totalStars} total stars across all projects and generated ${totalForks} forks. Active contributor to developer community with consistent coding practices.}
         \\resumeItem{Code Quality}
@@ -135,23 +191,56 @@ export function generateLatexResume(
 
 %-----------PROJECTS-----------------
 \\section{Featured Projects}
-  \\resumeSubHeadingListStart${topRepos.map(repo => `
-    \\resumeSubItem{${escapeLatex(repo.name)}}
-      {${escapeLatex(repo.description || 'Professional software project showcasing modern development practices')}. Language: ${repo.language || 'Multiple'}. Stars: ${repo.stargazers_count}, Forks: ${repo.forks_count}.}`).join('')}
+  \\resumeSubHeadingListStart${topRepos
+    .map(
+      (repo) => `
+    \\resumeSubheading
+      {\\href{${repo.html_url}}{${escapeLatex(repo.name)}}}{${
+        repo.language || "Multiple Technologies"
+      }}
+      {${escapeLatex(
+        repo.description ||
+          "Modern software development project showcasing technical skills"
+      )}}{${repo.stargazers_count} Stars, ${repo.forks_count} Forks}
+      \\resumeItemListStart
+        \\resumeItem{Technology Stack}
+          {Built with ${repo.language || "multiple technologies"}${
+        repo.topics && repo.topics.length > 0
+          ? `, featuring ${repo.topics
+              .slice(0, 3)
+              .map((topic) => escapeLatex(topic))
+              .join(", ")}`
+          : ""
+      }}
+        \\resumeItem{Community Engagement}
+          {Achieved ${repo.stargazers_count} stars and ${
+        repo.forks_count
+      } forks, demonstrating ${
+        repo.stargazers_count > 5 ? "strong" : "growing"
+      } community interest and adoption}
+      \\resumeItemListEnd`
+    )
+    .join("")}
   \\resumeSubHeadingListEnd
 
 %--------PROGRAMMING SKILLS------------
 \\section{Programming Skills}
  \\resumeSubHeadingListStart
    \\item{
-     \\textbf{Languages}{: ${primaryLanguages}}
-     \\hfill
-     \\textbf{Technologies}{: ${frameworks}, Git, Docker, CI/CD}
+     \\textbf{Languages}{: ${topLanguages
+       .slice(0, 6)
+       .map(([lang]) => escapeLatex(lang))
+       .join(", ")}}
    }
    \\item{
-     \\textbf{GitHub Stats}{: ${profile.public_repos} repositories, ${totalStars} stars, ${profile.followers} followers}
+     \\textbf{Technologies}{: ${additionalTech}}
+   }
+   \\item{
+     \\textbf{GitHub Stats}{: ${
+       profile.public_repos
+     } repositories, ${totalStars} stars, ${profile.followers} followers}
      \\hfill
-     \\textbf{Experience}{: ${new Date().getFullYear() - memberSince + 1} years of open source development}
+     \\textbf{Experience}{: ${accountAge} years of open source development}
    }
  \\resumeSubHeadingListEnd
 
@@ -162,11 +251,11 @@ export function generateLatexResume(
 }
 
 function escapeLatex(text: string): string {
-  if (!text) return '';
+  if (!text) return "";
   return text
-    .replace(/\\/g, '\\textbackslash{}')
-    .replace(/[{}]/g, '\\$&')
-    .replace(/[$&%#^_~]/g, '\\$&')
-    .replace(/\n/g, ' ')
+    .replace(/\\/g, "\\textbackslash{}")
+    .replace(/[{}]/g, "\\$&")
+    .replace(/[$&%#^_~]/g, "\\$&")
+    .replace(/\n/g, " ")
     .trim();
 }
