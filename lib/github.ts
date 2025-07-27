@@ -27,19 +27,25 @@ export async function fetchRepoLanguages(octokit: Octokit, owner: string, repo: 
       repo,
     })
     return data
-  } catch (error) {
+  } catch {
     return {}
   }
 }
 
-export function calculateLanguageStats(repos: any[], languageData: { [key: string]: any }) {
+export function calculateLanguageStats(repos: unknown[], languageData: { [key: string]: unknown }) {
   const stats: { [key: string]: number } = {}
 
   repos.forEach(repo => {
-    const repoLanguages = languageData[repo.full_name] || {}
-    Object.entries(repoLanguages).forEach(([lang, bytes]) => {
-      stats[lang] = (stats[lang] || 0) + (bytes as number)
-    })
+    if (repo && typeof repo === 'object' && 'full_name' in repo) {
+      const repoLanguages = languageData[(repo as { full_name: string }).full_name] || {}
+      if (typeof repoLanguages === 'object' && repoLanguages !== null) {
+        Object.entries(repoLanguages).forEach(([lang, bytes]) => {
+          if (typeof bytes === 'number') {
+            stats[lang] = (stats[lang] || 0) + bytes
+          }
+        })
+      }
+    }
   })
 
   return stats
