@@ -24,8 +24,8 @@ export function generateLatexResume(
   const firstName = profile.name?.split(" ")[0] || profile.login;
   const lastName = profile.name?.split(" ").slice(1).join(" ") || "";
 
-  // Get top programming languages for skills section
-  const primaryLanguages = topLanguages
+  // Get top programming languages for skills section  
+  const skillsLanguages = topLanguages
     .slice(0, 8)
     .map(([lang, bytes]) => {
       const percentage = ((bytes / totalBytes) * 100).toFixed(0);
@@ -60,8 +60,8 @@ export function generateLatexResume(
     })
     .slice(0, 4);
 
-  // Get all unique languages from repos
-  const repoLanguages = [
+  // Get all unique languages from repos - used for display
+  const displayLanguages = [
     ...new Set(repos.map((repo) => repo.language).filter(Boolean)),
   ];
 
