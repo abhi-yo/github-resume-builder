@@ -14,7 +14,10 @@ import {
   Star,
   GitFork,
   ExternalLink,
+  FileText,
+  Download,
 } from "lucide-react";
+import { generateLatexResume } from "@/lib/latex-generator";
 
 export default function GitHubResume() {
   const { data: session } = useSession();
@@ -23,6 +26,7 @@ export default function GitHubResume() {
   const [languages, setLanguages] = useState<LanguageStats>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isGeneratingLatex, setIsGeneratingLatex] = useState(false);
 
   useEffect(() => {
     if (session?.accessToken) {
@@ -68,6 +72,63 @@ export default function GitHubResume() {
       setError(error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGenerateLatex = async () => {
+    if (!profile) return;
+    
+    setIsGeneratingLatex(true);
+    try {
+      const latex = generateLatexResume(profile, repos, languages);
+      
+      // Download the LaTeX file
+      const blob = new Blob([latex], { type: 'application/x-latex' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${profile.login}_resume.tex`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error('Error generating LaTeX:', error);
+      alert('Failed to generate LaTeX resume');
+    } finally {
+      setIsGeneratingLatex(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!profile) return;
+    
+    setIsGeneratingLatex(true);
+    try {
+      // Prepare data for the PDF page
+      const resumeData = {
+        profile,
+        repos,
+        languages
+      };
+      
+      // Encode data for URL
+      const encodedData = encodeURIComponent(JSON.stringify(resumeData));
+      
+      // Open PDF preview page in new window
+      const pdfUrl = `/resume-pdf?data=${encodedData}&autoprint=true`;
+      const printWindow = window.open(pdfUrl, '_blank');
+      
+      if (!printWindow) {
+        alert('Please allow popups to generate PDF. You can also use the LaTeX option for offline generation.');
+      }
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF resume');
+    } finally {
+      setIsGeneratingLatex(false);
     }
   };
 
@@ -183,6 +244,37 @@ export default function GitHubResume() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* LaTeX Resume Generation Section */}
+      <div className="bg-gradient-to-r from-purple-900 via-purple-800 to-purple-900 text-white p-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-3">Download Professional Resume</h2>
+          <p className="text-purple-200 mb-6">
+            Get your professional resume as a PDF for job applications, or download LaTeX source for customization.
+          </p>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isGeneratingLatex}
+              className="flex items-center gap-2 bg-white text-purple-800 hover:bg-purple-50 disabled:bg-gray-200 disabled:text-gray-500 px-8 py-4 rounded-lg font-medium transition-colors text-lg"
+            >
+              <Download className="w-6 h-6" />
+              {isGeneratingLatex ? 'Generating...' : 'Download PDF Resume'}
+            </button>
+            <button
+              onClick={handleGenerateLatex}
+              disabled={isGeneratingLatex}
+              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white px-6 py-4 rounded-lg font-medium transition-colors border-2 border-purple-400"
+            >
+              <FileText className="w-5 h-5" />
+              {isGeneratingLatex ? 'Generating...' : 'LaTeX Source'}
+            </button>
+          </div>
+          <p className="text-sm text-purple-200 mt-4">
+            PDF works in all browsers with print-to-PDF. LaTeX option for advanced users who want to customize formatting.
+          </p>
         </div>
       </div>
 
@@ -413,6 +505,49 @@ export default function GitHubResume() {
                 </a>
               </div>
             )}
+          </div>
+        </section>
+
+        {/* LaTeX Information Section */}
+        <section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 border-b-2 border-blue-600 pb-2">
+            About LaTeX Resumes
+          </h2>
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-r-lg">
+            <h3 className="text-lg font-semibold text-blue-800 mb-3">
+              Why Choose LaTeX for Your Resume?
+            </h3>
+            <div className="text-blue-700 space-y-3">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold mb-2">Professional Standards</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    <li>Industry standard for academic positions</li>
+                    <li>Preferred by tech companies and research institutions</li>
+                    <li>Consistent formatting across all platforms</li>
+                    <li>Version control friendly (plain text)</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Technical Advantages</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    <li>Superior typography and spacing</li>
+                    <li>Automatic section numbering and references</li>
+                    <li>Mathematical expressions support</li>
+                    <li>Customizable templates and styling</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-4 p-4 bg-blue-100 rounded">
+                <h4 className="font-semibold mb-2">How to Compile Your LaTeX Resume:</h4>
+                <ol className="list-decimal list-inside space-y-1 text-sm">
+                  <li>Download the .tex file using the button above</li>
+                  <li>Install LaTeX distribution: <a href="https://www.latex-project.org/get/" className="underline" target="_blank">TeX Live</a>, <a href="https://miktex.org/" className="underline" target="_blank">MiKTeX</a>, or <a href="https://www.tug.org/mactex/" className="underline" target="_blank">MacTeX</a></li>
+                  <li>Run: <code className="bg-blue-200 px-1 rounded font-mono">pdflatex your_resume.tex</code></li>
+                  <li>Or use <a href="https://www.overleaf.com" className="underline" target="_blank">Overleaf</a> for online compilation</li>
+                </ol>
+              </div>
+            </div>
           </div>
         </section>
       </div>
