@@ -21,8 +21,10 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
-  title: 'resume',
+  metadataBase: new URL(process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : process.env.NEXTAUTH_URL || 'http://localhost:3000'),
+  title: 'Resume Generator',
   description: 'Generate a LaTeX-style resume from your GitHub profile',
   icons: {
     icon: '/logo.png',
