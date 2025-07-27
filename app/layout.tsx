@@ -34,14 +34,6 @@ export const metadata: Metadata = {
     description: 'Generate a LaTeX-style resume from your GitHub profile',
     url: '/',
     siteName: 'Resume Generator',
-    images: [
-      {
-        url: '/open-graph.png',
-        width: 1200,
-        height: 630,
-        alt: 'Resume Generator - Transform your GitHub profile into a professional resume',
-      },
-    ],
     locale: 'en_US',
     type: 'website',
   },
@@ -49,7 +41,6 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Resume Generator',
     description: 'Generate a LaTeX-style resume from your GitHub profile',
-    images: ['/open-graph.png'],
   },
 }
 
