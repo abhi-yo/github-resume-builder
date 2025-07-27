@@ -9,10 +9,6 @@ export function generateLatexResume(
     .sort(([, a], [, b]) => b - a)
     .slice(0, 10);
 
-  const totalBytes = Object.values(languages).reduce(
-    (sum, bytes) => sum + bytes,
-    0
-  );
   const memberSince = new Date(profile.created_at).getFullYear();
   const totalStars = repos.reduce(
     (sum, repo) => sum + repo.stargazers_count,
@@ -23,15 +19,6 @@ export function generateLatexResume(
 
   const firstName = profile.name?.split(" ")[0] || profile.login;
   const lastName = profile.name?.split(" ").slice(1).join(" ") || "";
-
-  // Get top programming languages for skills section  
-  const skillsLanguages = topLanguages
-    .slice(0, 8)
-    .map(([lang, bytes]) => {
-      const percentage = ((bytes / totalBytes) * 100).toFixed(0);
-      return `${escapeLatex(lang)} (${percentage}%)`;
-    })
-    .join(", ");
 
   // Additional technologies based on common GitHub usage
   const additionalTech =
@@ -59,11 +46,6 @@ export function generateLatexResume(
       return getRepoScore(b) - getRepoScore(a);
     })
     .slice(0, 4);
-
-  // Get all unique languages from repos - used for display
-  const displayLanguages = [
-    ...new Set(repos.map((repo) => repo.language).filter(Boolean)),
-  ];
 
   const latex = `%-------------------------
 % Resume in Latex

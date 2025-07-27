@@ -1,12 +1,12 @@
-import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { GitHubRepo } from '@/types/github';
 
 export default async function ResumePDFPage({ 
   searchParams 
 }: { 
-  searchParams: { data?: string } 
+  searchParams: Promise<{ data?: string }> 
 }) {
   const session = await getServerSession(authOptions);
 
@@ -14,13 +14,15 @@ export default async function ResumePDFPage({
     redirect('/');
   }
 
-  if (!searchParams.data) {
+  const params = await searchParams;
+  
+  if (!params.data) {
     redirect('/resume');
   }
 
   let resumeData;
   try {
-    resumeData = JSON.parse(decodeURIComponent(searchParams.data));
+    resumeData = JSON.parse(decodeURIComponent(params.data));
   } catch {
     redirect('/resume');
   }
@@ -37,8 +39,8 @@ export default async function ResumePDFPage({
 
   const totalBytes = Object.values(languages || {}).reduce((sum: number, bytes) => sum + (bytes as number), 0);
   const memberSince = new Date(profile.created_at).getFullYear();
-  const totalStars = (repos || []).reduce((sum: number, repo: any) => sum + repo.stargazers_count, 0);
-  const totalForks = (repos || []).reduce((sum: number, repo: any) => sum + repo.forks_count, 0);
+  const totalStars = (repos || []).reduce((sum: number, repo: GitHubRepo) => sum + repo.stargazers_count, 0);
+  const totalForks = (repos || []).reduce((sum: number, repo: GitHubRepo) => sum + repo.forks_count, 0);
 
   return (
     <html>
@@ -324,7 +326,7 @@ export default async function ResumePDFPage({
           <div className="content">
             {profile.bio && (
               <div className="section">
-                <div className="bio">"{profile.bio}"</div>
+                <div className="bio">&quot;{profile.bio}&quot;</div>
               </div>
             )}
             
@@ -394,7 +396,7 @@ export default async function ResumePDFPage({
             
             <div className="section">
               <h3>Featured Projects</h3>
-              {(repos || []).slice(0, 4).map((repo: any) => (
+              {(repos || []).slice(0, 4).map((repo: GitHubRepo) => (
                 <div key={repo.id} className="project">
                   <h4>{repo.name}</h4>
                   <div className="meta">{repo.language || 'Various'} • ⭐ {repo.stargazers_count} stars • 🍴 {repo.forks_count} forks</div>
