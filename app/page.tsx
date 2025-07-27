@@ -44,13 +44,13 @@ export default function Home() {
                 {" "}
                 GitHub{" "}
               </span>
-              Into a Professional Resume
+              Into a Professional PDF Resume
             </h1>
 
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Automatically generate a beautiful, ATS-friendly resume from your
-              GitHub profile. Perfect for developers, engineers, and tech
-              professionals.
+              Automatically generate beautiful, professional PDF resumes from your
+              GitHub profile. Perfect for job applications, with both PDF download
+              and LaTeX source options available.
             </p>
 
             <div className="mb-12">
@@ -69,9 +69,9 @@ export default function Home() {
               },
               {
                 icon: <FileText className="w-8 h-8 text-green-600" />,
-                title: "ATS Optimized",
+                title: "Professional PDF Output",
                 description:
-                  "Clean, professional layout that passes Applicant Tracking Systems and impresses recruiters.",
+                  "Generate print-ready PDF resumes instantly using your browser's print function. No software installation required.",
               },
               {
                 icon: <Github className="w-8 h-8 text-purple-600" />,
@@ -87,9 +87,9 @@ export default function Home() {
               },
               {
                 icon: <Download className="w-8 h-8 text-red-600" />,
-                title: "PDF Export",
+                title: "PDF & LaTeX Export",
                 description:
-                  "High-quality PDF export with perfect formatting for printing and digital sharing.",
+                  "Download professional PDF resumes instantly, or get LaTeX source code for advanced customization.",
               },
               {
                 icon: <Star className="w-8 h-8 text-yellow-600" />,
