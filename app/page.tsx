@@ -3,7 +3,6 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { FileText } from "lucide-react";
 import AuthButton from "@/components/AuthButton";
 
 export default function Home() {
