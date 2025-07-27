@@ -1,5 +1,6 @@
 import SessionProvider from '@/components/SessionProvider'
 import { authOptions } from '@/lib/auth'
+import { generateMetadata } from '@/lib/metadata'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { DM_Sans } from 'next/font/google'
@@ -20,29 +21,7 @@ const dmSans = DM_Sans({
   variable: '--font-dm-sans'
 })
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}` 
-    : process.env.NEXTAUTH_URL || 'http://localhost:3000'),
-  title: 'Resume Generator',
-  description: 'Generate a LaTeX-style resume from your GitHub profile',
-  icons: {
-    icon: '/logo.png',
-  },
-  openGraph: {
-    title: 'Resume Generator',
-    description: 'Generate a LaTeX-style resume from your GitHub profile',
-    url: '/',
-    siteName: 'Resume Generator',
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Resume Generator',
-    description: 'Generate a LaTeX-style resume from your GitHub profile',
-  },
-}
+export const metadata: Metadata = generateMetadata()
 
 export default async function RootLayout({
   children,
