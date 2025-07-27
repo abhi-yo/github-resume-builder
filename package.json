@@ -6,8 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:latex": "cd test && node test-latex.js",
+    "install:latex": "./scripts/install-latex.sh"
   },
+  "packageManager": "pnpm@9.0.0",
   "dependencies": {
     "@octokit/rest": "^22.0.0",
     "@radix-ui/react-separator": "^1.1.7",
@@ -15,7 +18,10 @@
     "next": "15.4.4",
     "next-auth": "^4.24.11",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "puppeteer": "^23.0.0",
+    "html-pdf": "^3.0.1",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -23,6 +29,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/uuid": "^9.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.4.4",
     "tailwindcss": "^4",
