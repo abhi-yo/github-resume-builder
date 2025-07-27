@@ -1,0 +1,113 @@
+% Academic LaTeX Resume Template
+% Optimized for research positions, PhD applications, and academic roles
+
+\documentclass[11pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[scale=0.85]{geometry}
+\usepackage{multicol}
+\usepackage{fontawesome}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+% ModernCV theme - academic style
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+% Academic-focused color scheme
+\definecolor{academicblue}{RGB}{0,51,102}
+\moderncvcolor{academicblue}
+
+% Personal data placeholders
+\firstname{[FIRST_NAME]}
+\familyname{[LAST_NAME]}
+\title{Researcher \& Software Developer}
+\address{[LOCATION]}{}{}
+\email{[EMAIL]}
+\homepage{[GITHUB_URL]}
+\extrainfo{[PORTFOLIO_URL]}
+
+\begin{document}
+
+\makecvtitle
+
+% Research Interests
+\section{Research Interests}
+\cvitem{}{[BIO_DESCRIPTION] with focus on computational methods, open-source software development, and reproducible research.}
+
+% Education (to be filled manually)
+\section{Education}
+\cventry{YYYY--Present}{Ph.D. in Computer Science}{University Name}{City}{}{
+\begin{itemize}[leftmargin=1em]
+\item Dissertation: "Title of Your Research"
+\item Advisor: Dr. Advisor Name
+\item Expected graduation: Month Year
+\end{itemize}}
+
+\cventry{YYYY--YYYY}{M.S. in Computer Science}{University Name}{City}{GPA: X.X/4.0}{
+\begin{itemize}[leftmargin=1em]
+\item Thesis: "Title of Your Thesis"
+\item Relevant coursework: Algorithm Design, Machine Learning, Software Engineering
+\end{itemize}}
+
+% Research Experience & Open Source Contributions
+\section{Research Experience \& Open Source Development}
+\subsection{GitHub Portfolio Analysis}
+\cvitem{Repositories}{[PUBLIC_REPOS] public repositories demonstrating software engineering expertise}
+\cvitem{Community Impact}{[TOTAL_STARS] stars and [TOTAL_FORKS] forks across all projects}
+\cvitem{Collaboration}{[FOLLOWERS] followers, actively contributing to the developer community}
+\cvitem{Technical Breadth}{Proficient in [LANGUAGE_COUNT] programming languages}
+
+% Technical Skills with percentages
+\section{Technical Expertise}
+\subsection{Programming Languages}
+[SKILLS_SECTION]
+
+\subsection{Research Tools \& Frameworks}
+\cvitem{}{[ADDITIONAL_LANGUAGES], Git, LaTeX, Docker, CI/CD, Statistical Computing, Data Analysis}
+
+% Publications (to be added manually)
+\section{Publications}
+\subsection{Peer-Reviewed Articles}
+\cvitem{}{List your publications here in chronological order}
+
+\subsection{Conference Presentations}
+\cvitem{}{List conference presentations here}
+
+% Software Projects (GitHub repos)
+\section{Software Development \& Open Source Projects}
+[PROJECTS_SECTION]
+
+% Research Impact
+\section{Research Impact \& Community Engagement}
+\cventry{[MEMBER_SINCE]--Present}{Open Source Researcher}{GitHub Community}{Global}{}{
+\begin{itemize}[leftmargin=1em]
+\item Developed and maintained [PUBLIC_REPOS] research software packages
+\item Collaborated with international research community through code reviews
+\item Demonstrated reproducible research practices with version control
+\item Built research software with [TOTAL_STARS] community endorsements
+\item Contributed to open science through publicly available implementations
+\end{itemize}}
+
+% Awards & Honors (to be filled manually)
+\section{Awards \& Honors}
+\cvitem{YYYY}{Award Name, Institution}
+\cvitem{YYYY}{Fellowship Name, Organization}
+
+% Professional Service (to be filled manually)
+\section{Professional Service}
+\subsection{Reviewing}
+\cvitem{}{Journal reviewer for: List journals}
+\cvitem{}{Conference reviewer for: List conferences}
+
+\subsection{Teaching}
+\cventry{Semester Year}{Course Name}{Institution}{Role}{}{Brief description of teaching responsibilities}
+
+% Additional Information
+\section{Additional Information}
+\cvitem{GitHub Profile}{\httplink{[GITHUB_URL]}}
+\cvitem{Portfolio}{\httplink{[PORTFOLIO_URL]}}
+\cvitem{Research Status}{Currently seeking [postdoc/faculty/research] positions}
+\cvitem{Availability}{Available for collaboration and research opportunities}
+
+\end{document}

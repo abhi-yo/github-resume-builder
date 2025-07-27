@@ -1,0 +1,117 @@
+% Industry LaTeX Resume Template
+% Optimized for software engineering, tech companies, and industry positions
+
+\documentclass[11pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[scale=0.85]{geometry}
+\usepackage{multicol}
+\usepackage{fontawesome}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+% ModernCV theme - industry style
+\moderncvstyle{banking}
+\moderncvcolor{blue}
+
+% Industry-focused color scheme
+\definecolor{techblue}{RGB}{0,102,204}
+\moderncvcolor{techblue}
+
+% Personal data placeholders
+\firstname{[FIRST_NAME]}
+\familyname{[LAST_NAME]}
+\title{Full Stack Developer \& Software Engineer}
+\address{[LOCATION]}{}{}
+\email{[EMAIL]}
+\homepage{github.com/[USERNAME]}
+\extrainfo{[PORTFOLIO_URL]}
+
+\begin{document}
+
+\makecvtitle
+
+% Professional Summary
+\section{Professional Summary}
+\cvitem{}{[BIO_DESCRIPTION] Passionate about building scalable software solutions and contributing to open-source projects. Strong track record of delivering high-quality code and collaborating effectively in team environments.}
+
+% Key Metrics
+\begin{multicols}{2}
+\begin{itemize}[label=\faCode]
+\item [PUBLIC_REPOS] Production-Ready Repositories
+\item [TOTAL_STARS] GitHub Stars Earned
+\item [FOLLOWERS] Developer Network Connections
+\item [LANGUAGE_COUNT] Programming Languages
+\item [TOTAL_FORKS] Community Contributions
+\item Active Since [MEMBER_SINCE]
+\end{itemize}
+\end{multicols}
+
+% Technical Skills
+\section{Technical Skills}
+\subsection{Programming Languages \& Frameworks}
+[SKILLS_SECTION]
+
+\subsection{Tools \& Technologies}
+\cvitem{Development}{[ADDITIONAL_LANGUAGES], Git, Docker, Kubernetes, CI/CD}
+\cvitem{Databases}{PostgreSQL, MongoDB, Redis, MySQL}
+\cvitem{Cloud Platforms}{AWS, Google Cloud, Azure, Vercel, Netlify}
+\cvitem{Frontend}{React, Vue.js, Angular, Next.js, TypeScript}
+\cvitem{Backend}{Node.js, Django, Flask, Express.js, REST APIs}
+
+% Professional Experience (to be customized)
+\section{Professional Experience}
+\cventry{Month YYYY--Present}{Senior Software Engineer}{Company Name}{City, State}{}{
+\begin{itemize}[leftmargin=1em]
+\item Led development of scalable web applications serving X+ users
+\item Implemented CI/CD pipelines reducing deployment time by X\%
+\item Collaborated with cross-functional teams using Agile methodologies
+\item Technologies: List relevant technologies used
+\end{itemize}}
+
+\cventry{Month YYYY--Month YYYY}{Software Engineer}{Company Name}{City, State}{}{
+\begin{itemize}[leftmargin=1em]
+\item Developed and maintained microservices architecture
+\item Optimized database queries improving performance by X\%
+\item Participated in code reviews and mentored junior developers
+\item Technologies: List relevant technologies used
+\end{itemize}}
+
+% Featured Projects
+\section{Featured Projects \& Open Source Contributions}
+[PROJECTS_SECTION]
+
+% Open Source Impact
+\section{Open Source Impact}
+\cventry{[MEMBER_SINCE]--Present}{Open Source Contributor}{GitHub Community}{Remote}{}{
+\begin{itemize}[leftmargin=1em]
+\item Maintained [PUBLIC_REPOS] public repositories with focus on [TOP_LANGUAGES]
+\item Earned [TOTAL_STARS] stars demonstrating code quality and community value
+\item Collaborated with developers globally through pull requests and issues
+\item Built developer tools and libraries used by [TOTAL_FORKS] other projects
+\item Active contributor to the open-source ecosystem
+\end{itemize}}
+
+% Education
+\section{Education}
+\cventry{YYYY--YYYY}{Bachelor of Science in Computer Science}{University Name}{City, State}{GPA: X.X/4.0}{
+\begin{itemize}[leftmargin=1em]
+\item Relevant coursework: Data Structures, Algorithms, Software Engineering, Database Systems
+\item Senior Project: Brief description of capstone project
+\end{itemize}}
+
+% Certifications (optional)
+\section{Certifications}
+\cvitem{YYYY}{AWS Certified Solutions Architect}
+\cvitem{YYYY}{Google Cloud Professional Developer}
+\cvitem{YYYY}{Certified Kubernetes Administrator (CKA)}
+
+% Additional Information
+\section{Additional Information}
+\cvitem{GitHub}{\httplink{github.com/[USERNAME]} - Active open source contributor}
+\cvitem{Portfolio}{\httplink{[PORTFOLIO_URL]} - Live projects and demos}
+\cvitem{LinkedIn}{\httplink{linkedin.com/in/[USERNAME]}}
+\cvitem{Availability}{Open to new opportunities and collaborations}
+\cvitem{Work Authorization}{[Your work authorization status]}
+
+\end{document}
