@@ -1,50 +1,58 @@
 import { authOptions } from '@/lib/auth'
 import { createGitHubClient, fetchUserRepos } from '@/lib/github'
+import { validateRequest, addSecurityHeaders, sanitizeUsername, schemas } from '@/lib/validation'
 import { getServerSession } from 'next-auth'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
+  // Validate request with rate limiting and parameter validation
+  const validationError = await validateRequest(request, {
+    requireAuth: true,
+    rateLimit: { windowMs: 60000, maxRequests: 20 }, // 20 requests per minute
+    validateParams: {
+      username: schemas.username
+    }
+  })
+  
+  if (validationError) {
+    return validationError
+  }
+
   try {
     const session = await getServerSession(authOptions)
-
-    if (!session?.accessToken) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const { searchParams } = new URL(request.url)
-    const username = searchParams.get('username')
+    const username = sanitizeUsername(searchParams.get('username')!)
 
-    if (!username) {
-      return NextResponse.json({ error: 'Username required' }, { status: 400 })
-    }
-
-    const octokit = createGitHubClient(session.accessToken)
+    const octokit = createGitHubClient(session!.accessToken!)
     const repos = await fetchUserRepos(octokit, username)
 
     // Sort by stars and get top repos
     const topRepos = repos
-      .sort((a, b) => b.stargazers_count - a.stargazers_count)
+      .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0))
       .slice(0, 6)
 
-    return NextResponse.json({ success: true, data: topRepos })
-  } catch (error: any) {
+    const response = NextResponse.json({ success: true, data: topRepos })
+    return addSecurityHeaders(response)
+  } catch (error: unknown) {
     console.error('Error fetching repos:', error)
 
     // Handle specific GitHub API errors
-    if (error.status === 404) {
-      return NextResponse.json({ error: 'User not found', success: false }, { status: 404 })
-    }
-    if (error.status === 403) {
-      return NextResponse.json({ error: 'API rate limit exceeded or insufficient permissions', success: false }, { status: 403 })
-    }
-    if (error.status === 401) {
-      return NextResponse.json({ error: 'Invalid GitHub token', success: false }, { status: 401 })
+    if (error && typeof error === 'object' && 'status' in error) {
+      if ((error as { status: number }).status === 404) {
+        return NextResponse.json({ error: 'User not found', success: false }, { status: 404 })
+      }
+      if ((error as { status: number }).status === 403) {
+        return NextResponse.json({ error: 'API rate limit exceeded or insufficient permissions', success: false }, { status: 403 })
+      }
+      if ((error as { status: number }).status === 401) {
+        return NextResponse.json({ error: 'Invalid GitHub token', success: false }, { status: 401 })
+      }
     }
 
     return NextResponse.json({
       error: 'Failed to fetch repositories',
       success: false,
-      details: error.message
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
 }
