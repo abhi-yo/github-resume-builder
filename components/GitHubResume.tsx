@@ -13,6 +13,7 @@ import {
   FileText,
   LogOut,
 } from "lucide-react";
+import Image from "next/image";
 import { generateLatexResume } from "@/lib/latex-generator";
 
 export default function GitHubResume() {
@@ -173,9 +174,11 @@ export default function GitHubResume() {
         {/* Profile Header */}
         <div className="bg-zinc-900 rounded-xl p-6">
           <div className="flex gap-6 items-start">
-            <img
+            <Image
               src={profile.avatar_url}
-              alt={profile.name}
+              alt={profile.name || profile.login}
+              width={64}
+              height={64}
               className="w-16 h-16 rounded-xl object-cover"
             />
             <div className="flex-1">
