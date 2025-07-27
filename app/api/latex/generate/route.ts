@@ -1,43 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { generateLatexResume } from '@/lib/latex-generator';
+import { validateRequest, addSecurityHeaders, sanitizeString } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.accessToken) {
-      return NextResponse.json(
-        { success: false, error: 'Not authenticated' },
-        { status: 401 }
-      );
+  // Validate request with rate limiting and body validation
+  const validationError = await validateRequest(request, {
+    requireAuth: true,
+    rateLimit: { windowMs: 60000, maxRequests: 5 }, // 5 requests per minute (resource intensive)
+    validateBody: {
+      profile: { required: true, type: 'object' },
+      repos: { required: true, type: 'object' },
+      languages: { required: true, type: 'object' }
     }
+  })
+  
+  if (validationError) {
+    return validationError
+  }
 
+  try {
     const body = await request.json();
     const { profile, repos, languages } = body;
 
-    if (!profile) {
-      return NextResponse.json(
-        { success: false, error: 'Profile data is required' },
-        { status: 400 }
-      );
+    // Sanitize profile data
+    const sanitizedProfile = { ...profile };
+    if (sanitizedProfile.name) {
+      sanitizedProfile.name = sanitizeString(sanitizedProfile.name);
+    }
+    if (sanitizedProfile.bio) {
+      sanitizedProfile.bio = sanitizeString(sanitizedProfile.bio);
+    }
+    if (sanitizedProfile.location) {
+      sanitizedProfile.location = sanitizeString(sanitizedProfile.location);
+    }
+    if (sanitizedProfile.blog) {
+      sanitizedProfile.blog = sanitizeString(sanitizedProfile.blog);
     }
 
-    const latexContent = generateLatexResume(profile, repos, languages);
+    // Sanitize repository data
+    const sanitizedRepos = Array.isArray(repos) ? repos.map(repo => ({
+      ...repo,
+      name: repo.name ? sanitizeString(repo.name) : '',
+      description: repo.description ? sanitizeString(repo.description) : '',
+    })) : repos;
 
-    return NextResponse.json({
+    const latexContent = generateLatexResume(sanitizedProfile, sanitizedRepos, languages);
+
+    const response = NextResponse.json({
       success: true,
       data: {
         latex: latexContent,
-        filename: `${profile.login}_resume.tex`
+        filename: `${sanitizeString(sanitizedProfile.login || 'resume')}_resume.tex`
       }
     });
-
-  } catch (error: any) {
+    
+    return addSecurityHeaders(response);
+  } catch (error: unknown) {
     console.error('Error generating LaTeX:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to generate LaTeX' },
+      { success: false, error: error instanceof Error ? error.message : 'Failed to generate LaTeX' },
       { status: 500 }
     );
   }
