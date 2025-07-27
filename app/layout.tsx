@@ -3,6 +3,7 @@ import { authOptions } from '@/lib/auth'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { DM_Sans } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 // Doto font - will be loaded via CSS
@@ -64,6 +65,7 @@ export default async function RootLayout({
         <SessionProvider session={session}>
           {children}
         </SessionProvider>
+        <Analytics />
       </body>
     </html>
   )
