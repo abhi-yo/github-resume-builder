@@ -21,8 +21,34 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Professional GitHub Resume',
-  description: 'Generate a professional LaTeX-style resume from your GitHub profile',
+  metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
+  title: 'resume',
+  description: 'Generate a LaTeX-style resume from your GitHub profile',
+  icons: {
+    icon: '/logo.png',
+  },
+  openGraph: {
+    title: 'Resume Generator',
+    description: 'Generate a LaTeX-style resume from your GitHub profile',
+    url: '/',
+    siteName: 'Resume Generator',
+    images: [
+      {
+        url: '/open-graph.png',
+        width: 1200,
+        height: 630,
+        alt: 'Resume Generator - Transform your GitHub profile into a professional resume',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Resume Generator',
+    description: 'Generate a LaTeX-style resume from your GitHub profile',
+    images: ['/open-graph.png'],
+  },
 }
 
 export default async function RootLayout({
