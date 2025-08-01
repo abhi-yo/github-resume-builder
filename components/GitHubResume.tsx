@@ -12,6 +12,9 @@ import {
   GitFork,
   FileText,
   LogOut,
+  Settings,
+  Check,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import { generateLatexResume } from "@/lib/latex-generator";
@@ -24,6 +27,9 @@ export default function GitHubResume() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isGeneratingLatex, setIsGeneratingLatex] = useState(false);
+  const [showProjectSelector, setShowProjectSelector] = useState(false);
+  const [selectedProjects, setSelectedProjects] = useState<GitHubRepo[]>([]);
+  const [customSelection, setCustomSelection] = useState(false);
 
   useEffect(() => {
     if (session?.accessToken) {
@@ -77,7 +83,9 @@ export default function GitHubResume() {
 
     setIsGeneratingLatex(true);
     try {
-      const latex = generateLatexResume(profile, repos, languages);
+      // Use selected projects if custom selection is enabled, otherwise use all repos
+      const projectsToUse = customSelection ? selectedProjects : repos;
+      const latex = generateLatexResume(profile, projectsToUse, languages);
 
       // Download the LaTeX file
       const blob = new Blob([latex], { type: "application/x-latex" });
@@ -95,6 +103,36 @@ export default function GitHubResume() {
     } finally {
       setIsGeneratingLatex(false);
     }
+  };
+
+  const handleProjectToggle = (repo: GitHubRepo) => {
+    setSelectedProjects(prev => {
+      const isSelected = prev.some(p => p.id === repo.id);
+      if (isSelected) {
+        return prev.filter(p => p.id !== repo.id);
+      } else {
+        return [...prev, repo];
+      }
+    });
+  };
+
+  const handleSelectAllProjects = () => {
+    setSelectedProjects([...repos]);
+  };
+
+  const handleClearSelection = () => {
+    setSelectedProjects([]);
+  };
+
+  const handleUseCustomSelection = () => {
+    setCustomSelection(true);
+    setShowProjectSelector(false);
+  };
+
+  const handleUseAutoSelection = () => {
+    setCustomSelection(false);
+    setSelectedProjects([]);
+    setShowProjectSelector(false);
   };
 
   const handleLogout = () => {
@@ -231,24 +269,46 @@ export default function GitHubResume() {
         {/* LaTeX Generation */}
         <div className="bg-zinc-900 rounded-xl p-6">
           <div className="text-center">
-            <p className="text-zinc-400 text-sm mb-6">
+            <p className="text-zinc-400 text-sm mb-4">
               Download your professional LaTeX resume file
             </p>
-            <button
-              onClick={handleGenerateLatex}
-              disabled={isGeneratingLatex}
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-zinc-900 text-zinc-200 text-sm rounded-lg transition-all duration-200 disabled:opacity-50 hover:bg-zinc-800 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-zinc-700/50"
-              style={{
-                boxShadow: `
-                  inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
-                  0 1px 3px 0 rgba(0, 0, 0, 0.5),
-                  0 0 0 1px rgba(255, 255, 255, 0.05)
-                `,
-              }}
-            >
-              <FileText className="w-4 h-4" />
-              {isGeneratingLatex ? "Generating..." : "Download LaTeX Resume"}
-            </button>
+            {customSelection && (
+              <div className="mb-4 p-3 bg-zinc-800 rounded-lg">
+                <p className="text-zinc-300 text-sm">
+                  Using {selectedProjects.length} custom selected projects
+                </p>
+                <button
+                  onClick={() => setShowProjectSelector(true)}
+                  className="text-zinc-400 hover:text-zinc-200 text-xs underline mt-1"
+                >
+                  Edit selection
+                </button>
+              </div>
+            )}
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => setShowProjectSelector(true)}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm rounded-lg transition-all duration-200 border border-zinc-600/50"
+              >
+                <Settings className="w-4 h-4" />
+                Customize Projects
+              </button>
+              <button
+                onClick={handleGenerateLatex}
+                disabled={isGeneratingLatex}
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-zinc-900 text-zinc-200 text-sm rounded-lg transition-all duration-200 disabled:opacity-50 hover:bg-zinc-800 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] border border-zinc-700/50"
+                style={{
+                  boxShadow: `
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+                    0 1px 3px 0 rgba(0, 0, 0, 0.5),
+                    0 0 0 1px rgba(255, 255, 255, 0.05)
+                  `,
+                }}
+              >
+                <FileText className="w-4 h-4" />
+                {isGeneratingLatex ? "Generating..." : "Download LaTeX Resume"}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -393,6 +453,113 @@ export default function GitHubResume() {
             ))}
           </div>
         </div>
+
+        {/* Project Selector Modal */}
+        {showProjectSelector && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-zinc-900 rounded-xl border border-zinc-700 w-full max-w-4xl max-h-[90vh] overflow-hidden">
+              <div className="p-6 border-b border-zinc-700">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-doto text-white">Select Projects for Resume</h3>
+                  <button
+                    onClick={() => setShowProjectSelector(false)}
+                    className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5 text-zinc-400" />
+                  </button>
+                </div>
+                <p className="text-zinc-400 text-sm mt-2">
+                  Choose which projects to feature in your LaTeX resume, or use auto-selection.
+                </p>
+              </div>
+
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+                <div className="flex gap-3 mb-6">
+                  <button
+                    onClick={handleSelectAllProjects}
+                    className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm rounded-lg transition-colors"
+                  >
+                    Select All
+                  </button>
+                  <button
+                    onClick={handleClearSelection}
+                    className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm rounded-lg transition-colors"
+                  >
+                    Clear All
+                  </button>
+                  <div className="ml-auto text-zinc-400 text-sm">
+                    {selectedProjects.length} selected
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {repos.map((repo) => {
+                    const isSelected = selectedProjects.some(p => p.id === repo.id);
+                    return (
+                      <div
+                        key={repo.id}
+                        onClick={() => handleProjectToggle(repo)}
+                        className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
+                          isSelected
+                            ? 'bg-zinc-800 border-zinc-600 ring-1 ring-zinc-500'
+                            : 'bg-zinc-900 border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-medium text-white text-sm">{repo.name}</h4>
+                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                            isSelected
+                              ? 'bg-zinc-600 border-zinc-500'
+                              : 'border-zinc-600'
+                          }`}>
+                            {isSelected && <Check className="w-3 h-3 text-white" />}
+                          </div>
+                        </div>
+                        <p className="text-zinc-400 text-xs mb-3 line-clamp-2">
+                          {repo.description || "No description available"}
+                        </p>
+                        <div className="flex items-center gap-3 text-xs text-zinc-500">
+                          {repo.language && (
+                            <span className="flex items-center gap-1">
+                              <div className="w-2 h-2 rounded-full bg-zinc-600"></div>
+                              {repo.language}
+                            </span>
+                          )}
+                          <div className="flex items-center gap-1">
+                            <Star className="w-3 h-3" />
+                            <span>{repo.stargazers_count}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <GitFork className="w-3 h-3" />
+                            <span>{repo.forks_count}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-zinc-700">
+                <div className="flex gap-3 justify-end">
+                  <button
+                    onClick={handleUseAutoSelection}
+                    className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm rounded-lg transition-colors"
+                  >
+                    Use Auto-Selection
+                  </button>
+                  <button
+                    onClick={handleUseCustomSelection}
+                    disabled={selectedProjects.length === 0}
+                    className="px-4 py-2 bg-white hover:bg-zinc-100 text-black text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Use Selected Projects ({selectedProjects.length})
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
