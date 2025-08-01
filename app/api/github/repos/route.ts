@@ -26,12 +26,11 @@ export async function GET(request: NextRequest) {
     const octokit = createGitHubClient(session!.accessToken!)
     const repos = await fetchUserRepos(octokit, username)
 
-    // Sort by stars and get top repos
-    const topRepos = repos
+    // Sort by stars (but return all repos for project selection)
+    const sortedRepos = repos
       .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0))
-      .slice(0, 6)
 
-    const response = NextResponse.json({ success: true, data: topRepos })
+    const response = NextResponse.json({ success: true, data: sortedRepos })
     return addSecurityHeaders(response)
   } catch (error: unknown) {
     console.error('Error fetching repos:', error)
